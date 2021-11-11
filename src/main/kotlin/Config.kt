@@ -16,18 +16,18 @@ data class ServerConfig(
     val port: Int = 8080
 )
 
-data class ProjectConfig(
+data class Config(
     val polygon: PolygonConfig,
     val server: ServerConfig
 ) {
     companion object {
         @Throws
-        fun parse(path: Path = Paths.get(System.getProperty("user.dir"), "baochuan.yaml")): ProjectConfig {
+        fun parse(path: Path = Paths.get(System.getProperty("user.dir"), "baochuan.yaml")): Config {
             val mapper = ObjectMapper(YAMLFactory())
             mapper.registerModule(KotlinModule())
 
             return Files.newBufferedReader(path).use {
-                mapper.readValue(it, ProjectConfig::class.java)
+                mapper.readValue(it, Config::class.java)
             }
         }
     }

@@ -7,7 +7,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 
 fun main(args: Array<String>)  {
-    val config = ProjectConfig.parse()
+    val config = Config.parse()
 
     embeddedServer(Netty, port = config.server.port) {
         routing {
