@@ -3,13 +3,17 @@ package com.seansoper.baochuan
 import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import io.ktor.server.engine.*
+import io.ktor.server.netty.*
 
-fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
+fun main(args: Array<String>)  {
+    val config = ProjectConfig.parse()
 
-fun Application.module(testing: Boolean = false) {
-    routing {
-        get("/") {
-            call.respondText("Hello, world!")
+    embeddedServer(Netty, port = config.server.port) {
+        routing {
+            get("/") {
+                call.respondText("Hello, world!")
+            }
         }
-    }
+    }.start(wait = true)
 }
