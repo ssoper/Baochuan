@@ -1,5 +1,6 @@
 package com.seansoper.baochuan
 
+import com.seansoper.baochuan.indicators.SimpleMovingAverage
 import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.routing.*
@@ -30,14 +31,14 @@ val okHttpClientProvider: HttpClientProvider
 fun main(args: Array<String>)  {
     val config = Config.parse()
     val polygonClient = PolygonRestClient(config.polygon.apiKey, httpClientProvider = okHttpClientProvider)
-    val markets = polygonClient.referenceClient.getSupportedMarketsBlocking()
-    println(markets)
-
-    embeddedServer(Netty, port = config.server.port) {
-        routing {
-            get("/") {
-                call.respondText("Hello, world!")
-            }
-        }
-    }.start(wait = true)
+    val sma = SimpleMovingAverage(polygonClient.stocksClient).get("AAPL", SimpleMovingAverage.Period.DAY, 10)
+    println(sma)
+//
+//    embeddedServer(Netty, port = config.server.port) {
+//        routing {
+//            get("/") {
+//                call.respondText("Hello, world!")
+//            }
+//        }
+//    }.start(wait = true)
 }

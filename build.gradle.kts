@@ -12,11 +12,11 @@ repositories {
     maven("https://jitpack.io")
 }
 
-// Can’t update to latest (1.6.5) until issue resolved in Polygon library
-// https://github.com/polygon-io/client-jvm/issues/25
-val ktorVersion = "1.3.1"
-
 dependencies {
+    // Can’t update to latest (1.6.5) until issue resolved in Polygon library
+    // https://github.com/polygon-io/client-jvm/issues/25
+    val ktorVersion = "1.3.1"
+
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-serialization:$ktorVersion")
