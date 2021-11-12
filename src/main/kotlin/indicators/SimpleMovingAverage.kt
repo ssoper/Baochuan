@@ -5,24 +5,26 @@ import java.time.DayOfWeek
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.time.temporal.TemporalAdjusters
 import java.util.*
 
-class SimpleMovingAverage(val client: PolygonStocksClient) {
+class SimpleMovingAverage(private val client: PolygonStocksClient) {
 
     enum class Period {
-        DAY
+        DAY,
+        WEEK
     }
 
     private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.US)
 
     fun get(ticker: String, period: Period, amount: Int): Float {
         return when (period) {
-            Period.DAY -> getDaily(ticker, amount)
+            Period.DAY -> getAverage(ticker, getDailyDates(amount))
+            Period.WEEK -> getAverage(ticker, getWeeklyDates(amount))
         }
     }
 
-    private fun getDaily(ticker: String, amount: Int): Float {
-        val dates = getDates(amount)
+    private fun getAverage(ticker: String, dates: List<String>): Float {
         val values = dates.mapNotNull {
             client.getDailyOpenCloseBlocking(ticker, it, true).close
         }
@@ -30,7 +32,26 @@ class SimpleMovingAverage(val client: PolygonStocksClient) {
         return (values.sum() / values.size.toDouble()).toFloat()
     }
 
-    private fun getDates(amount: Int): List<String> {
+    private fun getWeeklyDates(amount: Int): List<String> {
+        val dates = mutableListOf<String>()
+        var date = ZonedDateTime.now(ZoneId.of("America/New_York"))
+            .minusDays(7)
+            .with(TemporalAdjusters.nextOrSame(DayOfWeek.FRIDAY))
+        var week = amount
+
+        do {
+            if (marketOpen(date)) {
+                dates.add(date.format(dateFormatter))
+                week--
+            }
+
+            date = date.minusDays(7)
+        } while (week > 0)
+
+        return dates.toList()
+    }
+
+    private fun getDailyDates(amount: Int): List<String> {
         val dates = mutableListOf<String>()
         var date = ZonedDateTime.now(ZoneId.of("America/New_York")).minusDays(1)
         var day = amount

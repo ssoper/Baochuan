@@ -31,8 +31,9 @@ val okHttpClientProvider: HttpClientProvider
 fun main(args: Array<String>)  {
     val config = Config.parse()
     val polygonClient = PolygonRestClient(config.polygon.apiKey, httpClientProvider = okHttpClientProvider)
-    val sma = SimpleMovingAverage(polygonClient.stocksClient).get("AAPL", SimpleMovingAverage.Period.DAY, 10)
+    val sma = SimpleMovingAverage(polygonClient.stocksClient).get("AAPL", SimpleMovingAverage.Period.WEEK, 4)
     println(sma)
+
 //
 //    embeddedServer(Netty, port = config.server.port) {
 //        routing {
