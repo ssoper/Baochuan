@@ -1,5 +1,7 @@
 package com.seansoper.baochuan
 
+import com.seansoper.baochuan.indicators.ExponentialMovingAverage
+import com.seansoper.baochuan.indicators.Period
 import com.seansoper.baochuan.indicators.SimpleMovingAverage
 import io.ktor.application.*
 import io.ktor.response.*
@@ -31,9 +33,17 @@ val okHttpClientProvider: HttpClientProvider
 fun main(args: Array<String>)  {
     val config = Config.parse()
     val polygonClient = PolygonRestClient(config.polygon.apiKey, httpClientProvider = okHttpClientProvider)
-    val sma = SimpleMovingAverage(polygonClient.stocksClient).get("AAPL", SimpleMovingAverage.Period.WEEK, 4)
+    val sma = SimpleMovingAverage(polygonClient.stocksClient).get("AAPL", Period.DAY, 4)
+    val ema = ExponentialMovingAverage(polygonClient.stocksClient).get("AAPL", Period.DAY, 4)
     println(sma)
+    println(ema)
 
+    val ema9 = ExponentialMovingAverage(polygonClient.stocksClient).get("AAPL", Period.DAY, 9)
+    val ema12 = ExponentialMovingAverage(polygonClient.stocksClient).get("AAPL", Period.DAY, 12)
+    val ema26 = ExponentialMovingAverage(polygonClient.stocksClient).get("AAPL", Period.DAY, 26)
+    println(ema9)
+    println(ema12)
+    println(ema26)
 //
 //    embeddedServer(Netty, port = config.server.port) {
 //        routing {

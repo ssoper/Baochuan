@@ -8,12 +8,19 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.TemporalAdjusters
 import java.util.*
 
-class SimpleMovingAverage(private val client: PolygonStocksClient) {
+// Limited to daily and weekly quotes without a Stocks Developer sub ($49/month)
+enum class Period {
+//    MINUTE_1,
+//    MINUTE_5,
+//    MINUTE_15,
+//    MINUTE_30,
+//    HOUR_1,
+//    HOUR_4,
+    DAY,
+    WEEK
+}
 
-    enum class Period {
-        DAY,
-        WEEK
-    }
+class SimpleMovingAverage(private val client: PolygonStocksClient) {
 
     private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.US)
 
