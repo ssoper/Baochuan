@@ -10,10 +10,8 @@ import java.time.ZonedDateTime
 import java.time.temporal.TemporalAdjusters
 
 enum class Period {
-//    MINUTE_1,
-//    MINUTE_5,
-//    MINUTE_15,
-//    MINUTE_30,
+    MINUTE_15,
+    MINUTE_30,
     HOUR_1,
     HOUR_4,
     DAY,
@@ -28,6 +26,8 @@ class SimpleMovingAverage(private val client: AlpacaAPI) {
             Period.DAY -> getAverage(ticker, getDailyDates(amount))
             Period.HOUR_4 -> getAverage(ticker, getHourlyDates(amount, 4))
             Period.HOUR_1 -> getAverage(ticker, getHourlyDates(amount, 1))
+            Period.MINUTE_30 -> getAverage(ticker, getMinuteDates(amount, 30))
+            Period.MINUTE_15 -> getAverage(ticker, getMinuteDates(amount, 15))
         }
     }
 
@@ -39,6 +39,27 @@ class SimpleMovingAverage(private val client: AlpacaAPI) {
         }
 
         return (values.sum() / values.size.toDouble()).toFloat()
+    }
+
+    fun getMinuteDates(amount: Int, period: Int, afterHours: Boolean = false): List<ZonedDateTime> {
+        val dates = mutableListOf<ZonedDateTime>()
+        var date = ZonedDateTime.now(ZoneId.of("America/New_York"))
+            .withMinute(0)
+        var count = amount
+
+        do {
+            if ((afterHours && date.isMarketOpen()) ||
+                (!afterHours && date.isMarketOpenHours())) {
+                dates.add(date)
+                date = date.minusMinutes(period.toLong())
+                count--
+            } else {
+                date = date.minusDays(1).withMarketClose()
+            }
+
+        } while (count > 0)
+
+        return dates.toList()
     }
 
     fun getHourlyDates(amount: Int, period: Int, afterHours: Boolean = false): List<ZonedDateTime> {

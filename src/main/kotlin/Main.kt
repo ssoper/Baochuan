@@ -16,7 +16,8 @@ fun main(args: Array<String>)  {
     val config = Config.parse()
     val client = AlpacaAPI(config.alpaca.key, config.alpaca.secret, EndpointAPIType.LIVE, DataAPIType.IEX)
 
-    val sma = SimpleMovingAverage(client).get("AAPL", Period.HOUR_4, 10)
+    val sma = SimpleMovingAverage(client).get("AAPL", Period.MINUTE_15, 10)
+//    val sma = SimpleMovingAverage(client).get("AAPL", Period.HOUR_4, 10)
 //    val ema = ExponentialMovingAverage(client).get("AAPL", Period.DAY, 4)
     println(sma)
 //    println(ema)
