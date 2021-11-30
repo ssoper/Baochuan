@@ -1,8 +1,8 @@
 package com.seansoper.baochuan
 
-//import com.seansoper.baochuan.indicators.ExponentialMovingAverage
+import com.seansoper.baochuan.indicators.ExponentialMovingAverage
 import com.seansoper.baochuan.indicators.Period
-//import com.seansoper.baochuan.indicators.SimpleMovingAverage
+import com.seansoper.baochuan.indicators.SimpleMovingAverage
 import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.routing.*
@@ -11,15 +11,22 @@ import io.ktor.server.netty.*
 import net.jacobpeterson.alpaca.AlpacaAPI
 import net.jacobpeterson.alpaca.model.properties.DataAPIType
 import net.jacobpeterson.alpaca.model.properties.EndpointAPIType
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 fun main(args: Array<String>)  {
     val config = Config.parse()
     val client = AlpacaAPI(config.alpaca.key, config.alpaca.secret, EndpointAPIType.LIVE, DataAPIType.IEX)
     println(client.account().get())
-//    val sma = SimpleMovingAverage(polygonClient.stocksClient).get("AAPL", Period.DAY, 4)
-//    val ema = ExponentialMovingAverage(polygonClient.stocksClient).get("AAPL", Period.DAY, 4)
-//    println(sma)
-//    println(ema)
+
+    val start = ZonedDateTime.of(2021, 11, 29, 15, 59, 0, 0, ZoneId.of("America/New_York"))
+    val stuff = client.marketData().getQuotes("AAPL", start, start.plusMinutes(1), 1, null)
+    println(stuff.quotes.first().ap)
+
+    val sma = SimpleMovingAverage(client).get("AAPL", Period.DAY, 4)
+    val ema = ExponentialMovingAverage(client).get("AAPL", Period.DAY, 4)
+    println(sma)
+    println(ema)
 //
 //    val ema9 = ExponentialMovingAverage(polygonClient.stocksClient).get("AAPL", Period.DAY, 9)
 //    val ema12 = ExponentialMovingAverage(polygonClient.stocksClient).get("AAPL", Period.DAY, 12)
