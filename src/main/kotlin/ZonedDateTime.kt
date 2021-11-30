@@ -2,6 +2,7 @@ package com.seansoper.baochuan
 
 import java.time.DayOfWeek
 import java.time.Month
+import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoField
 import java.time.temporal.TemporalAdjusters
@@ -39,6 +40,30 @@ fun ZonedDateTime.isMarketHoliday(): Boolean {
             this.isMLKDay() ||
             this.isMemorialDay())
 }
+
+fun ZonedDateTime.isMarketOpenHours(): Boolean {
+    val nyseTime = this.withZoneSameLocal(ZoneId.of("America/New_York"))
+    val milli = nyseTime.get(ChronoField.MILLI_OF_DAY)
+
+    return (this.isMarketOpen() &&
+            (milli > nyseTime.withMarketOpen().minusMinutes(1).get(ChronoField.MILLI_OF_DAY) &&
+            milli < nyseTime.withMarketClose().plusMinutes(1).get(ChronoField.MILLI_OF_DAY)))
+}
+
+fun ZonedDateTime.withMarketOpen(): ZonedDateTime {
+    return this
+        .withHour(9)
+        .withMinute(30)
+        .withSecond(0)
+}
+
+fun ZonedDateTime.withMarketClose(): ZonedDateTime {
+    return this
+        .withHour(16)
+        .withMinute(0)
+        .withSecond(0)
+}
+
 
 /*
 * Does not account for all observed market holidays
