@@ -1,6 +1,5 @@
 package com.seansoper.baochuan.indicators
 
-import io.polygon.kotlin.sdk.rest.stocks.PolygonStocksClient
 import java.time.DayOfWeek
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -19,7 +18,7 @@ enum class Period {
     DAY,
     WEEK
 }
-
+/*
 class SimpleMovingAverage(private val client: PolygonStocksClient) {
 
     private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.US)
@@ -79,4 +78,4 @@ class SimpleMovingAverage(private val client: PolygonStocksClient) {
     private fun marketOpen(date: ZonedDateTime): Boolean {
         return (date.dayOfWeek != DayOfWeek.SATURDAY && date.dayOfWeek != DayOfWeek.SUNDAY)
     }
-}
+}*/

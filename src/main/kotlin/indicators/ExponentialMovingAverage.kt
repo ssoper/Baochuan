@@ -1,7 +1,6 @@
 package com.seansoper.baochuan.indicators
 
-import io.polygon.kotlin.sdk.rest.stocks.PolygonStocksClient
-
+/*
 class ExponentialMovingAverage(private val client: PolygonStocksClient) {
 
     fun get(ticker: String, period: Period, amount: Int): Float? {
@@ -12,4 +11,4 @@ class ExponentialMovingAverage(private val client: PolygonStocksClient) {
         }
     }
 
-}
+}*/
