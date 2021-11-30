@@ -8,8 +8,9 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.jvm.Throws
 
-data class PolygonConfig(
-    val apiKey: String
+data class AlpacaConfig(
+    val key: String,
+    val secret: String
 )
 
 data class ServerConfig(
@@ -17,7 +18,7 @@ data class ServerConfig(
 )
 
 data class Config(
-    val polygon: PolygonConfig,
+    val alpaca: AlpacaConfig,
     val server: ServerConfig
 ) {
     companion object {

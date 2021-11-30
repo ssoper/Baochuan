@@ -1,6 +1,6 @@
 package com.seansoper.baochuan.indicators
 
-import io.polygon.kotlin.sdk.rest.stocks.PolygonStocksClient
+import net.jacobpeterson.alpaca.AlpacaAPI
 import java.time.DayOfWeek
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -8,7 +8,6 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.TemporalAdjusters
 import java.util.*
 
-// Limited to daily and weekly quotes without a Stocks Developer sub ($49/month)
 enum class Period {
 //    MINUTE_1,
 //    MINUTE_5,
@@ -20,7 +19,7 @@ enum class Period {
     WEEK
 }
 
-class SimpleMovingAverage(private val client: PolygonStocksClient) {
+class SimpleMovingAverage(private val client: AlpacaAPI) {
 
     private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.US)
 
@@ -31,24 +30,28 @@ class SimpleMovingAverage(private val client: PolygonStocksClient) {
         }
     }
 
-    private fun getAverage(ticker: String, dates: List<String>): Float {
-        val values = dates.mapNotNull {
-            client.getDailyOpenCloseBlocking(ticker, it, true).close
+    private fun getAverage(ticker: String, dates: List<ZonedDateTime>): Float {
+        val values = dates.mapNotNull { date ->
+            client.marketData()
+                .getQuotes(ticker, date.minusMinutes(1), date, 1, null)
+                .quotes?.first()?.ap
         }
 
         return (values.sum() / values.size.toDouble()).toFloat()
     }
 
-    private fun getWeeklyDates(amount: Int): List<String> {
-        val dates = mutableListOf<String>()
+    private fun getWeeklyDates(amount: Int): List<ZonedDateTime> {
+        val dates = mutableListOf<ZonedDateTime>()
         var date = ZonedDateTime.now(ZoneId.of("America/New_York"))
+            .withHour(16)
+            .withMinute(0)
             .minusDays(7)
             .with(TemporalAdjusters.nextOrSame(DayOfWeek.FRIDAY))
         var week = amount
 
         do {
             if (marketOpen(date)) {
-                dates.add(date.format(dateFormatter))
+                dates.add(date)
                 week--
             }
 
@@ -58,14 +61,17 @@ class SimpleMovingAverage(private val client: PolygonStocksClient) {
         return dates.toList()
     }
 
-    private fun getDailyDates(amount: Int): List<String> {
-        val dates = mutableListOf<String>()
-        var date = ZonedDateTime.now(ZoneId.of("America/New_York")).minusDays(1)
+    private fun getDailyDates(amount: Int): List<ZonedDateTime> {
+        val dates = mutableListOf<ZonedDateTime>()
+        var date = ZonedDateTime.now(ZoneId.of("America/New_York"))
+            .withHour(16)
+            .withMinute(0)
+            .minusDays(1)
         var day = amount
 
         do {
             if (marketOpen(date)) {
-                dates.add(date.format(dateFormatter))
+                dates.add(date)
                 day--
             }
 
