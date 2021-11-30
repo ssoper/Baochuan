@@ -1,5 +1,6 @@
 package com.seansoper.baochuan.indicators
 
+import com.seansoper.baochuan.isMarketOpen
 import net.jacobpeterson.alpaca.AlpacaAPI
 import java.time.DayOfWeek
 import java.time.ZoneId
@@ -50,7 +51,7 @@ class SimpleMovingAverage(private val client: AlpacaAPI) {
         var week = amount
 
         do {
-            if (marketOpen(date)) {
+            if (date.isMarketOpen()) {
                 dates.add(date)
                 week--
             }
@@ -70,7 +71,7 @@ class SimpleMovingAverage(private val client: AlpacaAPI) {
         var day = amount
 
         do {
-            if (marketOpen(date)) {
+            if (date.isMarketOpen()) {
                 dates.add(date)
                 day--
             }
@@ -81,8 +82,4 @@ class SimpleMovingAverage(private val client: AlpacaAPI) {
         return dates.toList()
     }
 
-    // Doesn’t account for market holidays
-    private fun marketOpen(date: ZonedDateTime): Boolean {
-        return (date.dayOfWeek != DayOfWeek.SATURDAY && date.dayOfWeek != DayOfWeek.SUNDAY)
-    }
 }

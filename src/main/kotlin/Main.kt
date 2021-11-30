@@ -2,7 +2,6 @@ package com.seansoper.baochuan
 
 import com.seansoper.baochuan.indicators.ExponentialMovingAverage
 import com.seansoper.baochuan.indicators.Period
-import com.seansoper.baochuan.indicators.SimpleMovingAverage
 import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.routing.*
