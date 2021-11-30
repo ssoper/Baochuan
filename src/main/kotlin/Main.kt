@@ -2,6 +2,7 @@ package com.seansoper.baochuan
 
 import com.seansoper.baochuan.indicators.ExponentialMovingAverage
 import com.seansoper.baochuan.indicators.Period
+import com.seansoper.baochuan.indicators.SimpleMovingAverage
 import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.routing.*
@@ -15,9 +16,9 @@ fun main(args: Array<String>)  {
     val config = Config.parse()
     val client = AlpacaAPI(config.alpaca.key, config.alpaca.secret, EndpointAPIType.LIVE, DataAPIType.IEX)
 
-//    val sma = SimpleMovingAverage(client).get("AAPL", Period.DAY, 4)
+    val sma = SimpleMovingAverage(client).get("AAPL", Period.HOUR_4, 10)
 //    val ema = ExponentialMovingAverage(client).get("AAPL", Period.DAY, 4)
-//    println(sma)
+    println(sma)
 //    println(ema)
 
 //    val ema9 = ExponentialMovingAverage(client).get("AAPL", Period.DAY, 9)
@@ -26,6 +27,8 @@ fun main(args: Array<String>)  {
 //    println(ema9)
 //    println(ema12)
 //    println(ema26)
+
+//    println(SimpleMovingAverage(client).getHourlyDates(10, 4, false))
 
     embeddedServer(Netty, port = config.server.port) {
         routing {
