@@ -20,13 +20,18 @@ fun main(args: Array<String>)  {
     val config = Config.parse()
     val client = AlpacaAPI(config.alpaca.key, config.alpaca.secret, EndpointAPIType.LIVE, DataAPIType.IEX)
 
-    // Upgrade to connection pool
     val dataSource = HikariDataSource()
     dataSource.jdbcUrl = "jdbc:mysql://localhost:3306/${config.database.name}"
     dataSource.username = config.database.username
     dataSource.password = config.database.password
+
     for (row in Watchlist(dataSource).list()) {
-        println(row[ticker])
+        println(row.ticker)
+        for (tag in row.tags) {
+            println(tag.tag.name)
+        }
+
+        println("****")
     }
 
 //    val sma = SimpleMovingAverage(client).get("AAPL", Period.MINUTE_15, 10)
