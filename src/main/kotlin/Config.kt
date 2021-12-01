@@ -13,12 +13,19 @@ data class AlpacaConfig(
     val secret: String
 )
 
+data class DatabaseConfig(
+    val username: String,
+    val password: String,
+    val name: String
+)
+
 data class ServerConfig(
     val port: Int = 8080
 )
 
 data class Config(
     val alpaca: AlpacaConfig,
+    val database: DatabaseConfig,
     val server: ServerConfig
 ) {
     companion object {
