@@ -5,6 +5,7 @@ import com.seansoper.baochuan.indicators.Period
 import com.seansoper.baochuan.indicators.SimpleMovingAverage
 import com.seansoper.baochuan.watchlist.Watchlist
 import com.seansoper.baochuan.watchlist.WatchlistTable.ticker
+import com.zaxxer.hikari.HikariDataSource
 import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.routing.*
@@ -20,8 +21,11 @@ fun main(args: Array<String>)  {
     val client = AlpacaAPI(config.alpaca.key, config.alpaca.secret, EndpointAPIType.LIVE, DataAPIType.IEX)
 
     // Upgrade to connection pool
-    val db = Database.connect("jdbc:mysql://localhost:3306/${config.database.name}", user = config.database.username, password = config.database.password)
-    for (row in Watchlist(db).list()) {
+    val dataSource = HikariDataSource()
+    dataSource.jdbcUrl = "jdbc:mysql://localhost:3306/${config.database.name}"
+    dataSource.username = config.database.username
+    dataSource.password = config.database.password
+    for (row in Watchlist(dataSource).list()) {
         println(row[ticker])
     }
 

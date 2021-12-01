@@ -8,11 +8,12 @@ import org.ktorm.schema.Table
 import org.ktorm.schema.int
 import org.ktorm.schema.varchar
 import java.sql.ResultSet
+import javax.sql.DataSource
 
-class Watchlist(val database: Database) {
+class Watchlist(val dataSource: DataSource) {
 
     fun list(): Query {
-        return database
+        return Database.connect(dataSource)
             .from(WatchlistTable)
             .select(WatchlistTable.ticker)
     }

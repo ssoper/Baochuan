@@ -12,8 +12,8 @@ repositories {
 }
 
 dependencies {
+    // Ktor
     val ktorVersion = "1.6.5"
-
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-serialization:$ktorVersion")
@@ -23,8 +23,11 @@ dependencies {
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.0")
 
     implementation("net.jacobpeterson:alpaca-java:8.3.2")
+
+    // Database
     implementation("org.ktorm:ktorm-core:3.4.1")
     implementation("org.mariadb.jdbc:mariadb-java-client:2.7.4")
+    implementation("com.zaxxer:HikariCP:5.0.0")
 
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
     testImplementation(kotlin("test"))
