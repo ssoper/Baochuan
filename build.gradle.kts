@@ -23,6 +23,8 @@ dependencies {
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.0")
 
     implementation("net.jacobpeterson:alpaca-java:8.3.2")
+    implementation("org.ktorm:ktorm-core:3.4.1")
+    implementation("org.mariadb.jdbc:mariadb-java-client:2.7.4")
 
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
     testImplementation(kotlin("test"))
