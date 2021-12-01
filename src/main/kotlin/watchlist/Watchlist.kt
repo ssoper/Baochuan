@@ -1,7 +1,8 @@
 package com.seansoper.baochuan.watchlist
 
+import kotlinx.serialization.Serializable
 import org.ktorm.database.Database
-import org.ktorm.dsl.*
+import org.ktorm.dsl.eq
 import org.ktorm.entity.*
 import org.ktorm.schema.*
 import javax.sql.DataSource
@@ -22,7 +23,21 @@ class Watchlist(dataSource: DataSource) {
         return Database.connect(globalDataSource).sequenceOf(Tickers).toList()
     }
 
+    fun listWithTags(): List<TickerResult> {
+        return Database.connect(globalDataSource).sequenceOf(Tickers).map {
+            TickerResult(id = it.id, symbol = it.symbol, tags = it.tags.map {
+                TagResult(id = it.tag.id, name = it.tag.name)
+            })
+        }
+    }
+
 }
+
+@Serializable
+data class TagResult(val id: Int, val name: String)
+
+@Serializable
+data class TickerResult(val id: Int, val symbol: String, val tags: List<TagResult>)
 
 interface Ticker: Entity<Ticker> {
     val id: Int

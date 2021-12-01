@@ -2,6 +2,14 @@ package com.seansoper.baochuan
 
 import com.seansoper.baochuan.watchlist.Watchlist
 import com.zaxxer.hikari.HikariDataSource
+import io.ktor.application.*
+import io.ktor.features.*
+import io.ktor.response.*
+import io.ktor.routing.*
+import io.ktor.serialization.*
+import io.ktor.server.engine.*
+import io.ktor.server.netty.*
+import kotlinx.serialization.json.Json
 import net.jacobpeterson.alpaca.AlpacaAPI
 import net.jacobpeterson.alpaca.model.properties.DataAPIType
 import net.jacobpeterson.alpaca.model.properties.EndpointAPIType
@@ -14,15 +22,6 @@ fun main(args: Array<String>)  {
     dataSource.jdbcUrl = "jdbc:mysql://localhost:3306/${config.database.name}"
     dataSource.username = config.database.username
     dataSource.password = config.database.password
-
-    for (row in Watchlist(dataSource).list()) {
-        println(row.symbol)
-        for (tag in row.tags) {
-            println(tag.tag.name)
-        }
-
-        println("****")
-    }
 
 //    val sma = SimpleMovingAverage(client).get("AAPL", Period.MINUTE_15, 10)
 //    val sma = SimpleMovingAverage(client).get("AAPL", Period.HOUR_4, 10)
@@ -39,15 +38,20 @@ fun main(args: Array<String>)  {
 
 //    println(SimpleMovingAverage(client).getHourlyDates(10, 4, false))
 
-    /*
     embeddedServer(Netty, port = config.server.port) {
+        install(ContentNegotiation) {
+            json(Json {
+                prettyPrint = true
+                isLenient = true
+            })
+        }
+
         routing {
             get("/") {
-                val ema12 = ExponentialMovingAverage(client).get("AAPL", Period.DAY, 12)
-                call.respondText("EMA12 $ema12")
+            call.respond(Watchlist(dataSource).listWithTags())
+            // val ema12 = ExponentialMovingAverage(client).get("AAPL", Period.DAY, 12)
+            // call.respondText("EMA12 $ema12")
             }
         }
     }.start(wait = true)
-
-     */
 }

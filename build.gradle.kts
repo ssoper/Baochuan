@@ -1,7 +1,9 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.5.30"
+    val kotlinVersion = "1.5.30"
+    kotlin("jvm") version kotlinVersion
+    id("org.jetbrains.kotlin.plugin.serialization") version kotlinVersion
 }
 
 group = "com.seansoper"
