@@ -12,46 +12,46 @@ internal inline fun <E : Any, T : BaseTable<E>> T.getList(predicate: (T) -> Colu
     return Database.connect(globalDataSource).sequenceOf(this).filter(predicate).toList()
 }
 
-class Watchlist(val dataSource: DataSource) {
+class Watchlist(dataSource: DataSource) {
 
     init {
         globalDataSource = dataSource
     }
 
-    fun list(): List<WatchlistEntity> {
-        return Database.connect(globalDataSource).sequenceOf(WatchlistTable).toList()
+    fun list(): List<Ticker> {
+        return Database.connect(globalDataSource).sequenceOf(Tickers).toList()
     }
 
 }
 
-interface WatchlistEntity: Entity<WatchlistEntity> {
+interface Ticker: Entity<Ticker> {
     val id: Int
-    val ticker: String
+    val symbol: String
 
-    val tags get() = WatchlistTagTable.getList { it.watchlistId eq id }
+    val tags get() = TickerTags.getList { it.tickerId eq id }
 }
 
-object WatchlistTable: Table<WatchlistEntity>("watchlist") {
+object Tickers: Table<Ticker>("tickers") {
     val id = int("id").primaryKey().bindTo { it.id }
-    val ticker = varchar("ticker").bindTo { it.ticker }
+    val symbol = varchar("symbol").bindTo { it.symbol }
 }
 
-interface TagEntity: Entity<TagEntity> {
+interface Tag: Entity<Tag> {
     val id: Int
     val name: String
 }
 
-object TagTable: Table<TagEntity>("tag") {
+object Tags: Table<Tag>("tags") {
     val id = int("id").primaryKey().bindTo { it.id }
     val name = varchar("name").bindTo { it.name }
 }
 
-interface WatchlistTagEntity: Entity<WatchlistTagEntity> {
-    val watchlist: WatchlistEntity
-    val tag: TagEntity
+interface TickerTag: Entity<TickerTag> {
+    val ticker: Ticker
+    val tag: Tag
 }
 
-object WatchlistTagTable: Table<WatchlistTagEntity>("watchlist_tag") {
-    val watchlistId = int("watchlist_id").references(WatchlistTable) { it.watchlist }
-    val tagId = int("tag_id").references(TagTable) { it.tag }
+object TickerTags: Table<TickerTag>("tickers_tags") {
+    val tickerId = int("ticker_id").references(Tickers) { it.ticker }
+    val tagId = int("tag_id").references(Tags) { it.tag }
 }

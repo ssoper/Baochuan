@@ -1,20 +1,10 @@
 package com.seansoper.baochuan
 
-import com.seansoper.baochuan.indicators.ExponentialMovingAverage
-import com.seansoper.baochuan.indicators.Period
-import com.seansoper.baochuan.indicators.SimpleMovingAverage
 import com.seansoper.baochuan.watchlist.Watchlist
-import com.seansoper.baochuan.watchlist.WatchlistTable.ticker
 import com.zaxxer.hikari.HikariDataSource
-import io.ktor.application.*
-import io.ktor.response.*
-import io.ktor.routing.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
 import net.jacobpeterson.alpaca.AlpacaAPI
 import net.jacobpeterson.alpaca.model.properties.DataAPIType
 import net.jacobpeterson.alpaca.model.properties.EndpointAPIType
-import org.ktorm.database.Database
 
 fun main(args: Array<String>)  {
     val config = Config.parse()
@@ -26,7 +16,7 @@ fun main(args: Array<String>)  {
     dataSource.password = config.database.password
 
     for (row in Watchlist(dataSource).list()) {
-        println(row.ticker)
+        println(row.symbol)
         for (tag in row.tags) {
             println(tag.tag.name)
         }
