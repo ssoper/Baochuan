@@ -19,12 +19,14 @@ class Watchlist(dataSource: DataSource) {
         globalDataSource = dataSource
     }
 
-    fun list(): List<Ticker> {
-        return Database.connect(globalDataSource).sequenceOf(Tickers).toList()
+    fun list(): List<TickerResult> {
+        return Database.connect(globalDataSource).sequenceOf(Tickers).map {
+            TickerResult(id = it.id, symbol = it.symbol)
+        }
     }
 
-    fun listWithTags(): List<TickerResult> {
-        return Database.connect(globalDataSource).sequenceOf(Tickers).map {
+    fun find(id: Int): TickerResult? {
+        return Database.connect(globalDataSource).sequenceOf(Tickers).find { it.id eq id }?.let {
             TickerResult(id = it.id, symbol = it.symbol, tags = it.tags.map {
                 TagResult(id = it.tag.id, name = it.tag.name)
             })
@@ -37,7 +39,7 @@ class Watchlist(dataSource: DataSource) {
 data class TagResult(val id: Int, val name: String)
 
 @Serializable
-data class TickerResult(val id: Int, val symbol: String, val tags: List<TagResult>)
+data class TickerResult(val id: Int, val symbol: String, val tags: List<TagResult>? = null)
 
 interface Ticker: Entity<Ticker> {
     val id: Int

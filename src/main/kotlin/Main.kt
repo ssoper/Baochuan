@@ -4,6 +4,7 @@ import com.seansoper.baochuan.watchlist.Watchlist
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.application.*
 import io.ktor.features.*
+import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.serialization.*
@@ -46,12 +47,31 @@ fun main(args: Array<String>)  {
             })
         }
 
+        install(CORS) {
+            method(HttpMethod.Options)
+            method(HttpMethod.Get)
+            method(HttpMethod.Put)
+            method(HttpMethod.Post)
+            method(HttpMethod.Delete)
+            header(HttpHeaders.AccessControlAllowHeaders)
+            header(HttpHeaders.ContentType)
+            header(HttpHeaders.AccessControlAllowOrigin)
+            anyHost()
+        }
+
         routing {
-            get("/") {
-            call.respond(Watchlist(dataSource).listWithTags())
-            // val ema12 = ExponentialMovingAverage(client).get("AAPL", Period.DAY, 12)
-            // call.respondText("EMA12 $ema12")
+            get("/tickers") {
+                call.respond(Watchlist(dataSource).list())
             }
+
+            get("/tickers/{id}") {
+                call.parameters["id"]?.toInt()?.let {
+                    Watchlist(dataSource).find(it)?.let {
+                        call.respond(it)
+                    }
+                } ?: call.respond(HttpStatusCode.NotFound, "Ticker not found")
+            }
+
         }
     }.start(wait = true)
 }
