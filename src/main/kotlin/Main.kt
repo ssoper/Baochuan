@@ -10,12 +10,17 @@ import io.ktor.routing.*
 import io.ktor.serialization.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import net.jacobpeterson.alpaca.AlpacaAPI
 import net.jacobpeterson.alpaca.model.properties.DataAPIType
 import net.jacobpeterson.alpaca.model.properties.EndpointAPIType
+import java.lang.NumberFormatException
 
-fun main(args: Array<String>)  {
+@Serializable
+data class SimpleResponse(val message: String)
+
+fun main(args: Array<String>) {
     val config = Config.parse()
     val client = AlpacaAPI(config.alpaca.key, config.alpaca.secret, EndpointAPIType.LIVE, DataAPIType.IEX)
 
@@ -65,13 +70,31 @@ fun main(args: Array<String>)  {
             }
 
             get("/tickers/{id}") {
-                call.parameters["id"]?.toInt()?.let {
-                    Watchlist(dataSource).find(it)?.let {
-                        call.respond(it)
+                try {
+                    call.parameters["id"]?.toInt()?.let {
+                        Watchlist(dataSource).find(it)?.let {
+                            call.respond(it)
+                        } ?: call.respond(HttpStatusCode.NotFound, SimpleResponse("Ticker id not found"))
                     }
-                } ?: call.respond(HttpStatusCode.NotFound, "Ticker not found")
+                } catch (_: NumberFormatException) {
+                    call.respond(HttpStatusCode.BadRequest, SimpleResponse("Invalid id"))
+                }
             }
 
+            delete("/tickers/{tickerId}/tags/{tagId}") {
+                try {
+                    val tickerId = call.parameters["tickerId"]?.toInt() ?: throw NumberFormatException("No tickerId")
+                    val tagId = call.parameters["tagId"]?.toInt() ?: throw NumberFormatException("No tagId")
+
+                    if (Watchlist(dataSource).deleteTag(tickerId, tagId)) {
+                        call.respond(SimpleResponse("Tag deleted"))
+                    } else {
+                        call.respond(HttpStatusCode.NotFound, SimpleResponse("Tag for ticker not found"))
+                    }
+                } catch (_: NumberFormatException) {
+                    call.respond(HttpStatusCode.BadRequest, SimpleResponse("Invalid id"))
+                }
+            }
         }
     }.start(wait = true)
 }

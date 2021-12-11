@@ -2,6 +2,8 @@ package com.seansoper.baochuan.watchlist
 
 import kotlinx.serialization.Serializable
 import org.ktorm.database.Database
+import org.ktorm.dsl.and
+import org.ktorm.dsl.delete
 import org.ktorm.dsl.eq
 import org.ktorm.entity.*
 import org.ktorm.schema.*
@@ -33,6 +35,17 @@ class Watchlist(dataSource: DataSource) {
         }
     }
 
+    fun deleteTag(tickerId: Int, tagId: Int): Boolean {
+        return Database.connect(globalDataSource).delete(TickerTags) {
+            (it.tickerId eq tickerId).and(it.tagId eq tagId)
+        } > 0
+    }
+
+    fun updateName(name: String, tickerId: Int): Boolean {
+        return false
+    }
+
+    // addTag (for ticker or new)
 }
 
 @Serializable
