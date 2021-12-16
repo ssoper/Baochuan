@@ -2,11 +2,10 @@ package com.seansoper.baochuan.watchlist
 
 import kotlinx.serialization.Serializable
 import org.ktorm.database.Database
-import org.ktorm.dsl.and
-import org.ktorm.dsl.delete
-import org.ktorm.dsl.eq
+import org.ktorm.dsl.*
 import org.ktorm.entity.*
 import org.ktorm.schema.*
+import java.sql.SQLException
 import javax.sql.DataSource
 
 internal lateinit var globalDataSource: DataSource
@@ -41,12 +40,49 @@ class Watchlist(dataSource: DataSource) {
         } > 0
     }
 
-    fun updateName(name: String, tickerId: Int): Boolean {
-        return false
+    fun addTag(tickerId: Int, tagId: Int): Boolean {
+        return try {
+            Database.connect(globalDataSource).insert(TickerTags) {
+                set(it.tickerId, tickerId)
+                set(it.tagId, tagId)
+            } > 0
+        } catch (_: SQLException) {
+            false
+        }
     }
 
+    fun updateSymbol(tickerId: Int, symbol: String): Boolean {
+        return Database.connect(globalDataSource).update(Tickers) {
+            set(it.symbol, symbol)
+            where {
+                it.id eq tickerId
+            }
+        } > 0
+    }
+
+    fun allTags(): List<TagResult> {
+        return Database.connect(globalDataSource)
+            .sequenceOf(Tags)
+            .sortedBy { it.name }.map {
+                TagResult(id = it.id, name = it.name)
+            }
+    }
+
+    fun searchTags(query: String): List<TagResult> {
+        return Database.connect(globalDataSource)
+            .sequenceOf(Tags)
+            .filter { it.name like "$query%" }
+            .sortedBy { it.name }.map {
+                TagResult(id = it.id, name = it.name)
+            }
+    }
+
+    // searchSymbol
     // addTag (for ticker or new)
 }
+
+@Serializable
+data class UpdateSymbolRequest(val symbol: String)
 
 @Serializable
 data class TagResult(val id: Int, val name: String)

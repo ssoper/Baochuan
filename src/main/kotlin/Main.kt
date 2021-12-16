@@ -1,16 +1,21 @@
 package com.seansoper.baochuan
 
+import com.fasterxml.jackson.core.io.JsonEOFException
+import com.seansoper.baochuan.watchlist.TagResult
+import com.seansoper.baochuan.watchlist.UpdateSymbolRequest
 import com.seansoper.baochuan.watchlist.Watchlist
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.http.*
+import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.serialization.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import net.jacobpeterson.alpaca.AlpacaAPI
 import net.jacobpeterson.alpaca.model.properties.DataAPIType
@@ -83,8 +88,8 @@ fun main(args: Array<String>) {
 
             delete("/tickers/{tickerId}/tags/{tagId}") {
                 try {
-                    val tickerId = call.parameters["tickerId"]?.toInt() ?: throw NumberFormatException("No tickerId")
-                    val tagId = call.parameters["tagId"]?.toInt() ?: throw NumberFormatException("No tagId")
+                    val tickerId = call.parameters["tickerId"]?.toInt() ?: throw NumberFormatException("Invalid tickerId")
+                    val tagId = call.parameters["tagId"]?.toInt() ?: throw NumberFormatException("Invalid tagId")
 
                     if (Watchlist(dataSource).deleteTag(tickerId, tagId)) {
                         call.respond(SimpleResponse("Tag deleted"))
@@ -94,6 +99,49 @@ fun main(args: Array<String>) {
                 } catch (_: NumberFormatException) {
                     call.respond(HttpStatusCode.BadRequest, SimpleResponse("Invalid id"))
                 }
+            }
+
+            post("/tickers/{tickerId}/tags/{tagId}") {
+                try {
+                    val tickerId = call.parameters["tickerId"]?.toInt() ?: throw NumberFormatException("Invalid tickerId")
+                    val tagId = call.parameters["tagId"]?.toInt() ?: throw NumberFormatException("Invalid tagId")
+
+                    if (Watchlist(dataSource).addTag(tickerId, tagId)) {
+                        call.respond(SimpleResponse("Tag added to ticker"))
+                    } else {
+                        call.respond(HttpStatusCode.NotFound, SimpleResponse("Tag not added to ticker"))
+                    }
+                } catch (_: NumberFormatException) {
+                    call.respond(HttpStatusCode.BadRequest, SimpleResponse("Invalid id"))
+                }
+            }
+
+            put("/tickers/{id}") {
+                try {
+                    val tickerId = call.parameters["id"]?.toInt() ?: throw NumberFormatException("Invalid tickerId")
+                    val symbol = call.receive<UpdateSymbolRequest>().symbol
+
+                    if (Watchlist(dataSource).updateSymbol(tickerId, symbol)) {
+                        call.respond(SimpleResponse("Ticker updated"))
+                    } else {
+                        call.respond(HttpStatusCode.NotFound, SimpleResponse("Ticker not found"))
+                    }
+                } catch (_: NumberFormatException) {
+                    call.respond(HttpStatusCode.BadRequest, SimpleResponse("Invalid id"))
+                } catch (_: SerializationException) {
+                    call.respond(HttpStatusCode.BadRequest, SimpleResponse("Invalid request body"))
+                }
+            }
+
+            get("/tags") {
+                call.request.queryParameters["query"]?.trim()?.let {
+                    val minLength = 2
+                    if (it.length < minLength) {
+                        call.respond(HttpStatusCode.BadRequest, SimpleResponse("Query should be at least $minLength characters"))
+                    } else {
+                        call.respond(Watchlist(dataSource).searchTags(it))
+                    }
+                } ?: call.respond(Watchlist(dataSource).allTags())
             }
         }
     }.start(wait = true)
