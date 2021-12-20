@@ -51,6 +51,20 @@ class Watchlist(dataSource: DataSource) {
         }
     }
 
+    fun addTag(name: String): Int? {
+        return try {
+            val result = Database.connect(globalDataSource).insert(Tags) { set(it.name, name) }
+            if (result > 0) {
+                Database.connect(globalDataSource).sequenceOf(Tags)
+                    .find { it.name eq name }?.id
+            } else {
+                null
+            }
+        } catch (_: SQLException) {
+            null
+        }
+    }
+
     fun tagExists(tickerId: Int, tagId: Int): Boolean {
         return Database.connect(globalDataSource).sequenceOf(TickerTags)
                 .find { (it.tickerId eq tickerId).and(it.tagId eq tagId) }?.let { true } ?: false
@@ -83,11 +97,13 @@ class Watchlist(dataSource: DataSource) {
     }
 
     // searchSymbol (searches for actual ticker using vendor like alpaca)
-    // addTag (for ticker or new)
 }
 
 @Serializable
 data class UpdateSymbolRequest(val symbol: String)
+
+@Serializable
+data class AddNewTagRequest(val name: String, val tickerId: Int? = null)
 
 @Serializable
 data class TagResult(val id: Int, val name: String)

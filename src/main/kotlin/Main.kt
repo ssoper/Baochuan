@@ -1,6 +1,7 @@
 package com.seansoper.baochuan
 
 import com.fasterxml.jackson.core.io.JsonEOFException
+import com.seansoper.baochuan.watchlist.AddNewTagRequest
 import com.seansoper.baochuan.watchlist.TagResult
 import com.seansoper.baochuan.watchlist.UpdateSymbolRequest
 import com.seansoper.baochuan.watchlist.Watchlist
@@ -54,6 +55,7 @@ fun main(args: Array<String>) {
             json(Json {
                 prettyPrint = true
                 isLenient = true
+
             })
         }
 
@@ -150,6 +152,26 @@ fun main(args: Array<String>) {
                         call.respond(Watchlist(dataSource).searchTags(it))
                     }
                 } ?: call.respond(Watchlist(dataSource).allTags())
+            }
+
+            // Add new tag with optional tickerId parameter
+            post("/tags") {
+                try {
+                    val request = call.receive<AddNewTagRequest>()
+                    val tagName = request.name
+
+                    Watchlist(dataSource).addTag(tagName)?.let { tagId ->
+                        request.tickerId?.let { tickerId ->
+                            if (Watchlist(dataSource).addTag(tickerId, tagId)) {
+                                call.respond(SimpleResponse("Tag '${tagName}' added to ticker"))
+                            } else {
+                                call.respond(HttpStatusCode.NotFound, SimpleResponse("Tag '${tagName}' created but not added to ticker"))
+                            }
+                        } ?: call.respond(SimpleResponse("Tag '${tagName}' added"))
+                    } ?: call.respond(HttpStatusCode.BadRequest, SimpleResponse("Could not create tag"))
+                } catch (_: SerializationException) {
+                    call.respond(HttpStatusCode.BadRequest, SimpleResponse("Invalid request body"))
+                }
             }
         }
     }.start(wait = true)
