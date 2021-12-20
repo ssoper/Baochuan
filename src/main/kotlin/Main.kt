@@ -26,6 +26,9 @@ import java.lang.NumberFormatException
 @Serializable
 data class SimpleResponse(val message: String)
 
+@Serializable
+data class AddTagResponse(val message: String, val id: Int)
+
 fun main(args: Array<String>) {
     val config = Config.parse()
     val client = AlpacaAPI(config.alpaca.key, config.alpaca.secret, EndpointAPIType.LIVE, DataAPIType.IEX)
@@ -154,7 +157,7 @@ fun main(args: Array<String>) {
                 } ?: call.respond(Watchlist(dataSource).allTags())
             }
 
-            // Add new tag with optional tickerId parameter
+            // Add new tag with optional tickerId parameter, returns new tag id
             post("/tags") {
                 try {
                     val request = call.receive<AddNewTagRequest>()
@@ -163,11 +166,11 @@ fun main(args: Array<String>) {
                     Watchlist(dataSource).addTag(tagName)?.let { tagId ->
                         request.tickerId?.let { tickerId ->
                             if (Watchlist(dataSource).addTag(tickerId, tagId)) {
-                                call.respond(SimpleResponse("Tag '${tagName}' added to ticker"))
+                                call.respond(AddTagResponse("Tag '${tagName}' added to ticker", tagId))
                             } else {
                                 call.respond(HttpStatusCode.NotFound, SimpleResponse("Tag '${tagName}' created but not added to ticker"))
                             }
-                        } ?: call.respond(SimpleResponse("Tag '${tagName}' added"))
+                        } ?: call.respond(AddTagResponse("Tag '${tagName}' added", tagId))
                     } ?: call.respond(HttpStatusCode.BadRequest, SimpleResponse("Could not create tag"))
                 } catch (_: SerializationException) {
                     call.respond(HttpStatusCode.BadRequest, SimpleResponse("Invalid request body"))
