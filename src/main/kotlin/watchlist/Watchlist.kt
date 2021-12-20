@@ -51,6 +51,11 @@ class Watchlist(dataSource: DataSource) {
         }
     }
 
+    fun tagExists(tickerId: Int, tagId: Int): Boolean {
+        return Database.connect(globalDataSource).sequenceOf(TickerTags)
+                .find { (it.tickerId eq tickerId).and(it.tagId eq tagId) }?.let { true } ?: false
+    }
+
     fun updateSymbol(tickerId: Int, symbol: String): Boolean {
         return Database.connect(globalDataSource).update(Tickers) {
             set(it.symbol, symbol)
@@ -77,7 +82,7 @@ class Watchlist(dataSource: DataSource) {
             }
     }
 
-    // searchSymbol
+    // searchSymbol (searches for actual ticker using vendor like alpaca)
     // addTag (for ticker or new)
 }
 

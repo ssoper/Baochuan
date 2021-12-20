@@ -70,10 +70,12 @@ fun main(args: Array<String>) {
         }
 
         routing {
+            // Get all tickers
             get("/tickers") {
                 call.respond(Watchlist(dataSource).list())
             }
 
+            // Get the symbol and tags for a ticker
             get("/tickers/{id}") {
                 try {
                     call.parameters["id"]?.toInt()?.let {
@@ -86,6 +88,7 @@ fun main(args: Array<String>) {
                 }
             }
 
+            // Delete a tag from a ticker
             delete("/tickers/{tickerId}/tags/{tagId}") {
                 try {
                     val tickerId = call.parameters["tickerId"]?.toInt() ?: throw NumberFormatException("Invalid tickerId")
@@ -101,12 +104,15 @@ fun main(args: Array<String>) {
                 }
             }
 
+            // Add a tag to a ticker
             post("/tickers/{tickerId}/tags/{tagId}") {
                 try {
                     val tickerId = call.parameters["tickerId"]?.toInt() ?: throw NumberFormatException("Invalid tickerId")
                     val tagId = call.parameters["tagId"]?.toInt() ?: throw NumberFormatException("Invalid tagId")
 
-                    if (Watchlist(dataSource).addTag(tickerId, tagId)) {
+                    if (Watchlist(dataSource).tagExists(tickerId, tagId)) {
+                        call.respond(HttpStatusCode.Found, SimpleResponse("Tag already exists for ticker"))
+                    } else if (Watchlist(dataSource).addTag(tickerId, tagId)) {
                         call.respond(SimpleResponse("Tag added to ticker"))
                     } else {
                         call.respond(HttpStatusCode.NotFound, SimpleResponse("Tag not added to ticker"))
@@ -116,6 +122,7 @@ fun main(args: Array<String>) {
                 }
             }
 
+            // Update the symbol for a ticker
             put("/tickers/{id}") {
                 try {
                     val tickerId = call.parameters["id"]?.toInt() ?: throw NumberFormatException("Invalid tickerId")
@@ -133,6 +140,7 @@ fun main(args: Array<String>) {
                 }
             }
 
+            // Get all available tags
             get("/tags") {
                 call.request.queryParameters["query"]?.trim()?.let {
                     val minLength = 2
