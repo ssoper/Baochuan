@@ -1,5 +1,6 @@
 package com.seansoper.baochuan.watchlist
 
+import com.seansoper.batil.brokers.etrade.EtradeClient
 import kotlinx.serialization.Serializable
 import org.ktorm.database.Database
 import org.ktorm.dsl.*
@@ -96,7 +97,41 @@ class Watchlist(dataSource: DataSource) {
             }
     }
 
-    // searchSymbol (searches for actual ticker using vendor like alpaca)
+    // TODO: Should client argument be moved up like globalDataSource?
+    // FIXME: Non-existent results for query "ASBSD" should result in empty array not exception thrown
+    fun lookup(query: String, client: EtradeClient): List<SearchTickerResponse> {
+        return try {
+            client.market.lookup(query)?.mapNotNull {
+                it.symbol?.let { symbol ->
+                    Regex(query).find(symbol)?.let { match ->
+                        SearchTickerResponse(symbol, it.description, it.type, SearchRange(match))
+                    }
+                }
+            } ?: listOf()
+        } catch (_: Exception) {
+            listOf()
+        }
+    }
+
+}
+
+@Serializable
+data class SearchTickerResponse(
+    val symbol: String,
+    val description: String? = null,
+    val symbolType: String? = null,
+    val highlighted: SearchRange)
+
+// Basically an IntRange which isn’t serlializable
+@Serializable
+data class SearchRange(
+    val start: Int,
+    val end: Int
+) {
+    constructor(match: MatchResult): this(
+        match.range.first,
+        match.range.last
+    )
 }
 
 @Serializable

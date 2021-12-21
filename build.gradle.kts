@@ -21,10 +21,14 @@ dependencies {
     implementation("io.ktor:ktor-serialization:$ktorVersion")
     implementation("ch.qos.logback:logback-classic:1.2.7")
 
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.0")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.0")
+    // Jackson
+    val jacksonVersion = "2.12.5"
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion")
 
+    // APIs
     implementation("net.jacobpeterson:alpaca-java:8.3.2")
+    implementation("com.seansoper:batil:1.0.2")
 
     // Database
     implementation("org.ktorm:ktorm-core:3.4.1")

@@ -1,10 +1,11 @@
 package com.seansoper.baochuan
 
 import com.fasterxml.jackson.core.io.JsonEOFException
-import com.seansoper.baochuan.watchlist.AddNewTagRequest
-import com.seansoper.baochuan.watchlist.TagResult
-import com.seansoper.baochuan.watchlist.UpdateSymbolRequest
-import com.seansoper.baochuan.watchlist.Watchlist
+import com.seansoper.baochuan.watchlist.*
+import com.seansoper.batil.brokers.etrade.EtradeClient
+import com.seansoper.batil.brokers.etrade.auth.Authorization
+import com.seansoper.batil.config.ClientConfig
+import com.seansoper.batil.config.GlobalConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.application.*
 import io.ktor.features.*
@@ -21,6 +22,7 @@ import kotlinx.serialization.json.Json
 import net.jacobpeterson.alpaca.AlpacaAPI
 import net.jacobpeterson.alpaca.model.properties.DataAPIType
 import net.jacobpeterson.alpaca.model.properties.EndpointAPIType
+import java.io.File
 import java.lang.NumberFormatException
 
 @Serializable
@@ -31,7 +33,13 @@ data class AddTagResponse(val message: String, val id: Int)
 
 fun main(args: Array<String>) {
     val config = Config.parse()
-    val client = AlpacaAPI(config.alpaca.key, config.alpaca.secret, EndpointAPIType.LIVE, DataAPIType.IEX)
+    val alpacaClient = with(config.alpaca) {
+        AlpacaAPI(key, secret, EndpointAPIType.LIVE, DataAPIType.IEX)
+    }
+
+    val etradeClient = with(config.etrade) {
+        EtradeClient(key, secret, username, password, EtradeClient.Endpoint.LIVE)
+    }
 
     val dataSource = HikariDataSource()
     dataSource.jdbcUrl = "jdbc:mysql://localhost:3306/${config.database.name}"
@@ -175,6 +183,18 @@ fun main(args: Array<String>) {
                 } catch (_: SerializationException) {
                     call.respond(HttpStatusCode.BadRequest, SimpleResponse("Invalid request body"))
                 }
+            }
+
+            get("/lookup") {
+                val query = call.request.queryParameters["query"]?.trim() ?:
+                    return@get call.respond(HttpStatusCode.BadRequest, SimpleResponse("No query parameter provided"))
+
+                if (query.length < 2) {
+                    return@get call.respond(listOf<SearchTickerResponse>())
+                }
+
+                val results = Watchlist(dataSource).lookup(query, etradeClient)
+                call.respond(results)
             }
         }
     }.start(wait = true)

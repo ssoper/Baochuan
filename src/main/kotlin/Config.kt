@@ -13,6 +13,13 @@ data class AlpacaConfig(
     val secret: String
 )
 
+data class EtradeConfig(
+    val key: String,
+    val secret: String,
+    val username: String,
+    val password: String
+)
+
 data class DatabaseConfig(
     val username: String,
     val password: String,
@@ -25,6 +32,7 @@ data class ServerConfig(
 
 data class Config(
     val alpaca: AlpacaConfig,
+    val etrade: EtradeConfig,
     val database: DatabaseConfig,
     val server: ServerConfig
 ) {
