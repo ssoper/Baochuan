@@ -16,6 +16,7 @@ import io.ktor.routing.*
 import io.ktor.serialization.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import io.ktor.util.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
@@ -186,7 +187,7 @@ fun main(args: Array<String>) {
             }
 
             get("/lookup") {
-                val query = call.request.queryParameters["query"]?.trim() ?:
+                val query = call.request.queryParameters["query"]?.trim()?.uppercase() ?:
                     return@get call.respond(HttpStatusCode.BadRequest, SimpleResponse("No query parameter provided"))
 
                 if (query.length < 2) {
