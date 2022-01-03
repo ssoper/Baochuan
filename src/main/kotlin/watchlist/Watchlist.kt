@@ -6,7 +6,9 @@ import org.ktorm.database.Database
 import org.ktorm.dsl.*
 import org.ktorm.entity.*
 import org.ktorm.schema.*
+import java.lang.Error
 import java.sql.SQLException
+import java.sql.SQLIntegrityConstraintViolationException
 import javax.sql.DataSource
 
 internal lateinit var globalDataSource: DataSource
@@ -32,6 +34,30 @@ class Watchlist(dataSource: DataSource) {
             TickerResult(id = it.id, symbol = it.symbol, tags = it.tags.map {
                 TagResult(id = it.tag.id, name = it.tag.name)
             })
+        }
+    }
+
+    fun deleteTicker(id: Int): Boolean {
+        return Database.connect(globalDataSource).delete(Tickers) {
+            it.id eq id
+        } > 0
+    }
+
+    fun addTicker(symbol: String): TickerResult? {
+        val rows = try {
+            Database.connect(globalDataSource).insert(Tickers) {
+                set(it.symbol, symbol)
+            }
+        } catch (_: SQLIntegrityConstraintViolationException) {
+            throw TickerExistsError()
+        }
+
+        return if (rows == 0) {
+             null
+        } else {
+            Database.connect(globalDataSource).sequenceOf(Tickers).find { it.symbol eq symbol }?.let {
+                TickerResult(id = it.id, symbol = it.symbol)
+            }
         }
     }
 
@@ -177,3 +203,5 @@ object TickerTags: Table<TickerTag>("tickers_tags") {
     val tickerId = int("ticker_id").references(Tickers) { it.ticker }
     val tagId = int("tag_id").references(Tags) { it.tag }
 }
+
+class TickerExistsError: Error("Ticker symbol already exists")

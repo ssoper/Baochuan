@@ -1,11 +1,7 @@
 package com.seansoper.baochuan
 
-import com.fasterxml.jackson.core.io.JsonEOFException
 import com.seansoper.baochuan.watchlist.*
 import com.seansoper.batil.brokers.etrade.EtradeClient
-import com.seansoper.batil.brokers.etrade.auth.Authorization
-import com.seansoper.batil.config.ClientConfig
-import com.seansoper.batil.config.GlobalConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.application.*
 import io.ktor.features.*
@@ -16,18 +12,15 @@ import io.ktor.routing.*
 import io.ktor.serialization.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import io.ktor.util.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import net.jacobpeterson.alpaca.AlpacaAPI
 import net.jacobpeterson.alpaca.model.properties.DataAPIType
 import net.jacobpeterson.alpaca.model.properties.EndpointAPIType
-import java.io.File
-import java.lang.NumberFormatException
 
 @Serializable
-data class SimpleResponse(val message: String)
+data class SimpleResponse(val message: String? = "Error")
 
 @Serializable
 data class AddTagResponse(val message: String, val id: Int)
@@ -99,6 +92,36 @@ fun main(args: Array<String>) {
                     }
                 } catch (_: NumberFormatException) {
                     call.respond(HttpStatusCode.BadRequest, SimpleResponse("Invalid id"))
+                }
+            }
+
+            // Delete a ticker
+            delete("/tickers/{id}") {
+                try {
+                    val tickerId = call.parameters["id"]?.toInt() ?: throw NumberFormatException()
+
+                    if (Watchlist(dataSource).deleteTicker(tickerId)) {
+                        call.respond(SimpleResponse("Ticker deleted"))
+                    } else {
+                        call.respond(HttpStatusCode.NotFound, SimpleResponse("Ticker not found"))
+                    }
+                } catch (_: NumberFormatException) {
+                    call.respond(HttpStatusCode.BadRequest, SimpleResponse("Invalid id"))
+                }
+            }
+
+            // Add a ticker
+            post("/tickers") {
+                try {
+                    val symbol = call.receive<UpdateSymbolRequest>().symbol
+
+                    Watchlist(dataSource).addTicker(symbol)?.let {
+                        call.respond(AddTagResponse("Ticker added", it.id))
+                    } ?: call.respond(HttpStatusCode.NotAcceptable, SimpleResponse("Ticker not created"))
+                } catch (_: SerializationException) {
+                    call.respond(HttpStatusCode.BadRequest, SimpleResponse("Invalid request body"))
+                } catch (exception: TickerExistsError) {
+                    call.respond(HttpStatusCode.BadRequest, SimpleResponse(exception.message))
                 }
             }
 
@@ -189,10 +212,6 @@ fun main(args: Array<String>) {
             get("/lookup") {
                 val query = call.request.queryParameters["query"]?.trim()?.uppercase() ?:
                     return@get call.respond(HttpStatusCode.BadRequest, SimpleResponse("No query parameter provided"))
-
-                if (query.length < 2) {
-                    return@get call.respond(listOf<SearchTickerResponse>())
-                }
 
                 val results = Watchlist(dataSource).lookup(query, etradeClient)
                 call.respond(results)

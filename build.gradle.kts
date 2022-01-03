@@ -21,14 +21,14 @@ dependencies {
     implementation("io.ktor:ktor-serialization:$ktorVersion")
     implementation("ch.qos.logback:logback-classic:1.2.7")
 
-    // Jackson
+    // Jackson, keep at this version until Batil’s dep on JavaRx (via pl.wendigo.chrome) is updated
     val jacksonVersion = "2.12.5"
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion")
 
     // APIs
     implementation("net.jacobpeterson:alpaca-java:8.3.2")
-    implementation("com.seansoper:batil:1.0.2")
+    implementation("com.seansoper:batil:1.0.4")
 
     // Database
     implementation("org.ktorm:ktorm-core:3.4.1")
