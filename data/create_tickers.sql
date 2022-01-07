@@ -1,0 +1,74 @@
+-- -------------------------------------------------------------
+-- TablePlus 4.5.2(402)
+--
+-- https://tableplus.com/
+--
+-- Database: baochuan
+-- Generation Time: 2022-01-07 12:10:11.8860
+-- -------------------------------------------------------------
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+
+CREATE TABLE `tickers` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `symbol` varchar(10) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_symbol` (`symbol`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO `tickers` (`id`, `symbol`) VALUES
+(1, 'RIOT'),
+(2, 'MARA'),
+(3, 'ETHE'),
+(4, 'BTBT'),
+(5, 'SOS'),
+(6, 'MOGO'),
+(7, 'HUT'),
+(8, 'BITF'),
+(9, 'TSLA'),
+(10, 'FSLR'),
+(11, 'NIO'),
+(12, 'PLUG'),
+(13, 'BLNK'),
+(14, 'FCEL'),
+(15, 'LI'),
+(16, 'F'),
+(17, 'STLA'),
+(18, 'XPEV'),
+(19, 'QS'),
+(20, 'TSP'),
+(21, 'CLNE'),
+(22, 'CHPT'),
+(23, 'RIVN'),
+(24, 'JPM'),
+(25, 'C'),
+(26, 'SOFI'),
+(27, 'BAC'),
+(28, 'GS'),
+(29, 'COF'),
+(30, 'SQ'),
+(31, 'PYPL'),
+(32, 'COIN'),
+(33, 'AFRM'),
+(34, 'CLF'),
+(35, 'X'),
+(36, 'MT'),
+(37, 'NUE');
+
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;

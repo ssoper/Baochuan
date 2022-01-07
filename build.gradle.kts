@@ -46,3 +46,45 @@ tasks.test {
 tasks.withType<KotlinCompile>() {
     kotlinOptions.jvmTarget = JavaVersion.VERSION_11.toString()
 }
+
+// Database tasks
+
+val dbTasksGroup = "Database"
+val dbName = project.property("com.seansoper.baochuan.db.name")
+val dbUsername = project.property("com.seansoper.baochuan.db.username")
+val dbPassword = project.property("com.seansoper.baochuan.db.password")
+
+tasks.register("createTables") {
+    group = dbTasksGroup
+
+    doLast {
+        val dir = "${projectDir}/data"
+        exec {
+            commandLine("sh", "-c", "mysql -u$dbUsername -p$dbPassword $dbName < $dir/create_tickers.sql")
+        }
+        exec {
+            commandLine("sh", "-c", "mysql -u$dbUsername -p$dbPassword $dbName < $dir/create_tags.sql")
+        }
+        exec {
+            commandLine("sh", "-c", "mysql -u$dbUsername -p$dbPassword $dbName < $dir/create_tickers_tags.sql")
+            logger.info("Tables created")
+        }
+    }
+}
+
+tasks.register("dropTables") {
+    group = dbTasksGroup
+
+    doLast {
+        exec {
+            val dir = "${projectDir}/data"
+            commandLine("sh", "-c", "mysql -u$dbUsername -p$dbPassword $dbName < $dir/drop_tables.sql")
+            logger.info("Tables dropped")
+        }
+    }
+}
+
+tasks.register<GradleBuild>("resetData") {
+    group = dbTasksGroup
+    tasks = listOf("dropTables", "createTables")
+}
