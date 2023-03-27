@@ -9,13 +9,9 @@ Collection of indicators. Runs as a web service.
 title: Simple sample
 ---
 stateDiagram-v2
-    [*] --> Still
-    Still --> [*]
-
-    A --> B
-    Moving --> Still
-    Moving --> Crash
-    Crash --> [*]
+    Options Data --> Baochuan
+    Ticker Data --> Baochuan
+    Baochuan --> Profit
 ```
 
 ## TODO
