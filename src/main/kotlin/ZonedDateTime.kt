@@ -80,7 +80,8 @@ fun ZonedDateTime.withMarketClose(): ZonedDateTime {
 
 /*
 * Does not account for all observed market holidays
-* Official list here https://www.nyse.com/markets/hours-calendars
+* Official list – https://www.nyse.com/markets/hours-calendars
+* Alpaca API – https://alpaca.markets/deprecated/docs/api-documentation/how-to/market-hours/
 */
 fun ZonedDateTime.isMarketOpen(): Boolean {
     return (!this.isWeekend() && !this.isMarketHoliday())
