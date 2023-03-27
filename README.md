@@ -5,12 +5,19 @@ Collection of indicators. Runs as a web service.
 ## Architecture
 
 ```mermaid
-graph TD;
-    A-->B;
-    A-->C;
-    B-->D;
-    C-->D;
+---
+title: Simple sample
+---
+stateDiagram-v2
+    [*] --> Still
+    Still --> [*]
+
+    Still --> Moving
+    Moving --> Still
+    Moving --> Crash
+    Crash --> [*]
 ```
+
 ## TODO
 
 * Consider using [Jackson](https://ktor.io/docs/jackson.html#register_jackson_converter)
