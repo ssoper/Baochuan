@@ -3,9 +3,24 @@ package com.seansoper.baochuan.watchlist
 import com.seansoper.batil.brokers.etrade.EtradeClient
 import kotlinx.serialization.Serializable
 import org.ktorm.database.Database
-import org.ktorm.dsl.*
-import org.ktorm.entity.*
-import org.ktorm.schema.*
+import org.ktorm.dsl.and
+import org.ktorm.dsl.delete
+import org.ktorm.dsl.eq
+import org.ktorm.dsl.insert
+import org.ktorm.dsl.like
+import org.ktorm.dsl.update
+import org.ktorm.entity.Entity
+import org.ktorm.entity.filter
+import org.ktorm.entity.find
+import org.ktorm.entity.map
+import org.ktorm.entity.sequenceOf
+import org.ktorm.entity.sortedBy
+import org.ktorm.entity.toList
+import org.ktorm.schema.BaseTable
+import org.ktorm.schema.ColumnDeclaring
+import org.ktorm.schema.Table
+import org.ktorm.schema.int
+import org.ktorm.schema.varchar
 import java.lang.Error
 import java.sql.SQLException
 import java.sql.SQLIntegrityConstraintViolationException
@@ -31,9 +46,12 @@ class Watchlist(dataSource: DataSource) {
 
     fun find(id: Int): TickerResult? {
         return Database.connect(globalDataSource).sequenceOf(Tickers).find { it.id eq id }?.let {
-            TickerResult(id = it.id, symbol = it.symbol, tags = it.tags.map {
-                TagResult(id = it.tag.id, name = it.tag.name)
-            })
+            TickerResult(
+                id = it.id, symbol = it.symbol,
+                tags = it.tags.map {
+                    TagResult(id = it.tag.id, name = it.tag.name)
+                }
+            )
         }
     }
 
@@ -53,7 +71,7 @@ class Watchlist(dataSource: DataSource) {
         }
 
         return if (rows == 0) {
-             null
+            null
         } else {
             Database.connect(globalDataSource).sequenceOf(Tickers).find { it.symbol eq symbol }?.let {
                 TickerResult(id = it.id, symbol = it.symbol)
@@ -94,7 +112,7 @@ class Watchlist(dataSource: DataSource) {
 
     fun tagExists(tickerId: Int, tagId: Int): Boolean {
         return Database.connect(globalDataSource).sequenceOf(TickerTags)
-                .find { (it.tickerId eq tickerId).and(it.tagId eq tagId) }?.let { true } ?: false
+            .find { (it.tickerId eq tickerId).and(it.tagId eq tagId) }?.let { true } ?: false
     }
 
     fun updateSymbol(tickerId: Int, symbol: String): Boolean {
@@ -138,7 +156,6 @@ class Watchlist(dataSource: DataSource) {
             listOf()
         }
     }
-
 }
 
 @Serializable
@@ -146,7 +163,8 @@ data class SearchTickerResponse(
     val symbol: String,
     val description: String? = null,
     val symbolType: String? = null,
-    val highlighted: SearchRange)
+    val highlighted: SearchRange
+)
 
 // Basically an IntRange which isn’t serlializable
 @Serializable
@@ -154,7 +172,7 @@ data class SearchRange(
     val start: Int,
     val end: Int
 ) {
-    constructor(match: MatchResult): this(
+    constructor(match: MatchResult) : this(
         match.range.first,
         match.range.last
     )
@@ -172,36 +190,36 @@ data class TagResult(val id: Int, val name: String)
 @Serializable
 data class TickerResult(val id: Int, val symbol: String, val tags: List<TagResult>? = null)
 
-interface Ticker: Entity<Ticker> {
+interface Ticker : Entity<Ticker> {
     val id: Int
     val symbol: String
 
     val tags get() = TickerTags.getList { it.tickerId eq id }
 }
 
-object Tickers: Table<Ticker>("tickers") {
+object Tickers : Table<Ticker>("tickers") {
     val id = int("id").primaryKey().bindTo { it.id }
     val symbol = varchar("symbol").bindTo { it.symbol }
 }
 
-interface Tag: Entity<Tag> {
+interface Tag : Entity<Tag> {
     val id: Int
     val name: String
 }
 
-object Tags: Table<Tag>("tags") {
+object Tags : Table<Tag>("tags") {
     val id = int("id").primaryKey().bindTo { it.id }
     val name = varchar("name").bindTo { it.name }
 }
 
-interface TickerTag: Entity<TickerTag> {
+interface TickerTag : Entity<TickerTag> {
     val ticker: Ticker
     val tag: Tag
 }
 
-object TickerTags: Table<TickerTag>("tickers_tags") {
+object TickerTags : Table<TickerTag>("tickers_tags") {
     val tickerId = int("ticker_id").references(Tickers) { it.ticker }
     val tagId = int("tag_id").references(Tags) { it.tag }
 }
 
-class TickerExistsError: Error("Ticker symbol already exists")
+class TickerExistsError : Error("Ticker symbol already exists")

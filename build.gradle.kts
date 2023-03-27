@@ -4,10 +4,19 @@ plugins {
     val kotlinVersion = "1.5.30"
     kotlin("jvm") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.serialization") version kotlinVersion
+    id("org.jmailen.kotlinter") version "3.6.0"
 }
 
 group = "com.seansoper"
 version = "1.0"
+
+val javaVersion = JavaVersion.VERSION_17
+java {
+    targetCompatibility = javaVersion
+    sourceCompatibility = javaVersion
+    withSourcesJar()
+    withJavadocJar()
+}
 
 repositories {
     mavenCentral()
@@ -50,9 +59,9 @@ tasks.withType<KotlinCompile>() {
 // Database tasks
 
 val dbTasksGroup = "Database"
-val dbName = project.property("com.seansoper.baochuan.db.name")
-val dbUsername = project.property("com.seansoper.baochuan.db.username")
-val dbPassword = project.property("com.seansoper.baochuan.db.password")
+val dbName = try { project.property("com.seansoper.baochuan.db.name") as String } catch(_: Exception) { "" }
+val dbUsername = try { project.property("com.seansoper.baochuan.db.username") as String } catch(_: Exception) { "" }
+val dbPassword = try { project.property("com.seansoper.baochuan.db.password") as String } catch(_: Exception) { "" }
 
 tasks.register("createTables") {
     group = dbTasksGroup
