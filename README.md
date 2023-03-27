@@ -6,11 +6,11 @@ Collection of indicators. Runs as a web service.
 
 ```mermaid
 graph TD;
-    Options Data-->Baochuan;
-    Ticker Data-->Baochuan;
-    Baochuan-->Profit;
+    A-->B;
+    A-->C;
+    B-->D;
+    C-->D;
 ```
-
 ## TODO
 
 * Consider using [Jackson](https://ktor.io/docs/jackson.html#register_jackson_converter)
