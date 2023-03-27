@@ -12,42 +12,56 @@ fun ZonedDateTime.isWeekend(): Boolean {
 }
 
 fun ZonedDateTime.isThanksgiving(): Boolean {
-    return (this.month == Month.NOVEMBER &&
+    return (
+        this.month == Month.NOVEMBER &&
             this.get(ChronoField.ALIGNED_WEEK_OF_MONTH) == 4 &&
-            this.dayOfWeek == DayOfWeek.THURSDAY)
+            this.dayOfWeek == DayOfWeek.THURSDAY
+        )
 }
 
 fun ZonedDateTime.isLaborDay(): Boolean {
-    return (this.month == Month.SEPTEMBER &&
+    return (
+        this.month == Month.SEPTEMBER &&
             this.get(ChronoField.ALIGNED_WEEK_OF_MONTH) == 1 &&
-            this.dayOfWeek == DayOfWeek.MONDAY)
+            this.dayOfWeek == DayOfWeek.MONDAY
+        )
 }
 
 fun ZonedDateTime.isMLKDay(): Boolean {
-    return (this.month == Month.JANUARY &&
+    return (
+        this.month == Month.JANUARY &&
             this.get(ChronoField.ALIGNED_WEEK_OF_MONTH) == 3 &&
-            this.dayOfWeek == DayOfWeek.MONDAY)
+            this.dayOfWeek == DayOfWeek.MONDAY
+        )
 }
 
 fun ZonedDateTime.isMemorialDay(): Boolean {
-    return (this.month == Month.MAY &&
-            this.dayOfMonth == this.with(TemporalAdjusters.lastInMonth(DayOfWeek.MONDAY)).dayOfMonth)
+    return (
+        this.month == Month.MAY &&
+            this.dayOfMonth == this.with(TemporalAdjusters.lastInMonth(DayOfWeek.MONDAY)).dayOfMonth
+        )
 }
 
 fun ZonedDateTime.isMarketHoliday(): Boolean {
-    return (this.isThanksgiving() ||
+    return (
+        this.isThanksgiving() ||
             this.isLaborDay() ||
             this.isMLKDay() ||
-            this.isMemorialDay())
+            this.isMemorialDay()
+        )
 }
 
 fun ZonedDateTime.isMarketOpenHours(): Boolean {
     val nyseTime = this.withZoneSameLocal(ZoneId.of("America/New_York"))
     val milli = nyseTime.get(ChronoField.MILLI_OF_DAY)
 
-    return (this.isMarketOpen() &&
-            (milli > nyseTime.withMarketOpen().minusMinutes(1).get(ChronoField.MILLI_OF_DAY) &&
-            milli < nyseTime.withMarketClose().plusMinutes(1).get(ChronoField.MILLI_OF_DAY)))
+    return (
+        this.isMarketOpen() &&
+            (
+                milli > nyseTime.withMarketOpen().minusMinutes(1).get(ChronoField.MILLI_OF_DAY) &&
+                    milli < nyseTime.withMarketClose().plusMinutes(1).get(ChronoField.MILLI_OF_DAY)
+                )
+        )
 }
 
 fun ZonedDateTime.withMarketOpen(): ZonedDateTime {
@@ -63,7 +77,6 @@ fun ZonedDateTime.withMarketClose(): ZonedDateTime {
         .withMinute(0)
         .withSecond(0)
 }
-
 
 /*
 * Does not account for all observed market holidays

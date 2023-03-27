@@ -49,14 +49,14 @@ class SimpleMovingAverage(private val client: AlpacaAPI) {
 
         do {
             if ((afterHours && date.isMarketOpen()) ||
-                (!afterHours && date.isMarketOpenHours())) {
+                (!afterHours && date.isMarketOpenHours())
+            ) {
                 dates.add(date)
                 date = date.minusMinutes(period.toLong())
                 count--
             } else {
                 date = date.minusDays(1).withMarketClose()
             }
-
         } while (count > 0)
 
         return dates.toList()
@@ -70,14 +70,14 @@ class SimpleMovingAverage(private val client: AlpacaAPI) {
 
         do {
             if ((afterHours && date.isMarketOpen()) ||
-                (!afterHours && date.isMarketOpenHours())) {
+                (!afterHours && date.isMarketOpenHours())
+            ) {
                 dates.add(date)
                 date = date.minusHours(period.toLong())
                 count--
             } else {
                 date = date.minusDays(1).withMarketClose()
             }
-
         } while (count > 0)
 
         return dates.toList()
@@ -123,5 +123,4 @@ class SimpleMovingAverage(private val client: AlpacaAPI) {
 
         return dates.toList()
     }
-
 }

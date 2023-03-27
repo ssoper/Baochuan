@@ -4,12 +4,13 @@ plugins {
     val kotlinVersion = "1.5.30"
     kotlin("jvm") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.serialization") version kotlinVersion
+    id("org.jmailen.kotlinter") version "3.6.0"
 }
 
 group = "com.seansoper"
 version = "1.0"
 
-val javaVersion = JavaVersion.VERSION_11
+val javaVersion = JavaVersion.VERSION_17
 java {
     targetCompatibility = javaVersion
     sourceCompatibility = javaVersion

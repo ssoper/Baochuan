@@ -1,17 +1,28 @@
 package com.seansoper.baochuan
 
-import com.seansoper.baochuan.watchlist.*
+import com.seansoper.baochuan.watchlist.AddNewTagRequest
+import com.seansoper.baochuan.watchlist.TickerExistsError
+import com.seansoper.baochuan.watchlist.UpdateSymbolRequest
+import com.seansoper.baochuan.watchlist.Watchlist
 import com.seansoper.batil.brokers.etrade.EtradeClient
 import com.zaxxer.hikari.HikariDataSource
-import io.ktor.application.*
-import io.ktor.features.*
-import io.ktor.http.*
-import io.ktor.request.*
-import io.ktor.response.*
-import io.ktor.routing.*
-import io.ktor.serialization.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
+import io.ktor.application.call
+import io.ktor.application.install
+import io.ktor.features.CORS
+import io.ktor.features.ContentNegotiation
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
+import io.ktor.http.HttpStatusCode
+import io.ktor.request.receive
+import io.ktor.response.respond
+import io.ktor.routing.delete
+import io.ktor.routing.get
+import io.ktor.routing.post
+import io.ktor.routing.put
+import io.ktor.routing.routing
+import io.ktor.serialization.json
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
@@ -57,11 +68,12 @@ fun main(args: Array<String>) {
 
     embeddedServer(Netty, port = config.server.port) {
         install(ContentNegotiation) {
-            json(Json {
-                prettyPrint = true
-                isLenient = true
-
-            })
+            json(
+                Json {
+                    prettyPrint = true
+                    isLenient = true
+                }
+            )
         }
 
         install(CORS) {
@@ -198,11 +210,11 @@ fun main(args: Array<String>) {
                     Watchlist(dataSource).addTag(tagName)?.let { tagId ->
                         request.tickerId?.let { tickerId ->
                             if (Watchlist(dataSource).addTag(tickerId, tagId)) {
-                                call.respond(AddTagResponse("Tag '${tagName}' added to ticker", tagId))
+                                call.respond(AddTagResponse("Tag '$tagName' added to ticker", tagId))
                             } else {
-                                call.respond(HttpStatusCode.NotFound, SimpleResponse("Tag '${tagName}' created but not added to ticker"))
+                                call.respond(HttpStatusCode.NotFound, SimpleResponse("Tag '$tagName' created but not added to ticker"))
                             }
-                        } ?: call.respond(AddTagResponse("Tag '${tagName}' added", tagId))
+                        } ?: call.respond(AddTagResponse("Tag '$tagName' added", tagId))
                     } ?: call.respond(HttpStatusCode.BadRequest, SimpleResponse("Could not create tag"))
                 } catch (_: SerializationException) {
                     call.respond(HttpStatusCode.BadRequest, SimpleResponse("Invalid request body"))
@@ -210,8 +222,8 @@ fun main(args: Array<String>) {
             }
 
             get("/lookup") {
-                val query = call.request.queryParameters["query"]?.trim()?.uppercase() ?:
-                    return@get call.respond(HttpStatusCode.BadRequest, SimpleResponse("No query parameter provided"))
+                val query = call.request.queryParameters["query"]?.trim()?.uppercase()
+                    ?: return@get call.respond(HttpStatusCode.BadRequest, SimpleResponse("No query parameter provided"))
 
                 val results = Watchlist(dataSource).lookup(query, etradeClient)
                 call.respond(results)
