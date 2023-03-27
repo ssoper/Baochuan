@@ -9,8 +9,8 @@ Collection of indicators. Runs as a web service.
 title: Simple sample
 ---
 stateDiagram-v2
-    Options Data --> Baochuan
-    Ticker Data --> Baochuan
+    `Options Data` --> Baochuan
+    `Ticker Data` --> Baochuan
     Baochuan --> Profit
 ```
 
