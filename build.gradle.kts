@@ -9,6 +9,14 @@ plugins {
 group = "com.seansoper"
 version = "1.0"
 
+val javaVersion = JavaVersion.VERSION_11
+java {
+    targetCompatibility = javaVersion
+    sourceCompatibility = javaVersion
+    withSourcesJar()
+    withJavadocJar()
+}
+
 repositories {
     mavenCentral()
 }
