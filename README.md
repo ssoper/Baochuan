@@ -6,7 +6,7 @@ Collection of indicators. Runs as a web service.
 
 ```mermaid
 ---
-title: Simple sample
+title: How Baochuan works
 ---
 stateDiagram-v2
     options: Options Data
