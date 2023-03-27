@@ -12,7 +12,7 @@ stateDiagram-v2
     [*] --> Still
     Still --> [*]
 
-    Still --> Moving
+    A --> B
     Moving --> Still
     Moving --> Crash
     Crash --> [*]
