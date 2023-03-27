@@ -59,9 +59,9 @@ tasks.withType<KotlinCompile>() {
 // Database tasks
 
 val dbTasksGroup = "Database"
-val dbName = project.property("com.seansoper.baochuan.db.name")
-val dbUsername = project.property("com.seansoper.baochuan.db.username")
-val dbPassword = project.property("com.seansoper.baochuan.db.password")
+val dbName = try { project.property("com.seansoper.baochuan.db.name") as String } catch(_: Exception) { "" }
+val dbUsername = try { project.property("com.seansoper.baochuan.db.username") as String } catch(_: Exception) { "" }
+val dbPassword = try { project.property("com.seansoper.baochuan.db.password") as String } catch(_: Exception) { "" }
 
 tasks.register("createTables") {
     group = dbTasksGroup
