@@ -47,7 +47,7 @@ fun main(args: Array<String>) {
     }
 
     val dataSource = HikariDataSource()
-    dataSource.jdbcUrl = "jdbc:mysql://localhost:3306/${config.database.name}"
+    dataSource.jdbcUrl = "jdbc:mysql://${config.database.server}:${config.database.port}/${config.database.name}"
     dataSource.username = config.database.username
     dataSource.password = config.database.password
 
@@ -76,6 +76,7 @@ fun main(args: Array<String>) {
             )
         }
 
+        // TODO: Use settings switch to determine
         install(CORS) {
             method(HttpMethod.Options)
             method(HttpMethod.Get)

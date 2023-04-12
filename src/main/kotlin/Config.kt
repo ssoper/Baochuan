@@ -23,7 +23,9 @@ data class EtradeConfig(
 data class DatabaseConfig(
     val username: String,
     val password: String,
-    val name: String
+    val name: String,
+    val server: String = "localhost",
+    val port: Int = 3306
 )
 
 data class ServerConfig(
