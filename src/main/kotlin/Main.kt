@@ -27,19 +27,22 @@ fun main(args: Array<String>) {
     dataSource.password = config.database.password
 
     val scanner = OptionScanner(etradeClient, dataSource)
-    runBlocking {
-        scanner.scan()
-    }
+    // Uncomment the following to run the blocking 1s scanner
+//    runBlocking {
+//        scanner.scan()
+//    }
 
-    runBlocking {
-        val date = LocalDateTime.now().minusDays(3)
-        println("Generating report for $date")
-        async {
-            scanner.generateReport("/Users/ssoper/workspace/Baochuan/options.csv", date)
-            println("Finished generating report for $date")
-        }
-    }
+    // Uncomment the following to generate a report given a date (or today if no date provided)
+//    runBlocking {
+//        val date = LocalDateTime.now().minusDays(3)
+//        println("Generating report for $date")
+//        async {
+//            scanner.generateReport("/Users/ssoper/workspace/Baochuan/options.csv")
+//            println("Finished generating report for $date")
+//        }
+//    }
 
     val server = Server(etradeClient, dataSource, config.server.port)
-    server.create().start(wait = true)
+    // Uncomment the following to run an API service
+//    server.create().start(wait = true)
 }
