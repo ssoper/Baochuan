@@ -10,19 +10,19 @@ import org.ktorm.entity.filter
 import org.ktorm.entity.groupBy
 import org.ktorm.entity.sequenceOf
 import org.ktorm.schema.Table
-import org.ktorm.schema.int
-import org.ktorm.schema.datetime
-import org.ktorm.schema.float
-import org.ktorm.schema.varchar
 import org.ktorm.schema.boolean
+import org.ktorm.schema.datetime
 import org.ktorm.schema.double
+import org.ktorm.schema.float
+import org.ktorm.schema.int
+import org.ktorm.schema.varchar
 import java.sql.SQLException
-import java.time.LocalDateTime
-import java.time.ZonedDateTime
 import java.time.LocalDate
-import java.time.ZoneOffset
-import java.time.ZoneId
+import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import javax.sql.DataSource
 
@@ -112,7 +112,7 @@ class OptionList(dataSource: DataSource) {
                         iv = it.iv
                     )
                 }
-        }
+            }
     }
 }
 

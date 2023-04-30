@@ -1,9 +1,9 @@
 package com.seansoper.baochuan.api
 
-import com.seansoper.baochuan.scanners.Watchlist
-import com.seansoper.baochuan.scanners.UpdateSymbolRequest
-import com.seansoper.baochuan.scanners.TickerExistsError
 import com.seansoper.baochuan.scanners.AddNewTagRequest
+import com.seansoper.baochuan.scanners.TickerExistsError
+import com.seansoper.baochuan.scanners.UpdateSymbolRequest
+import com.seansoper.baochuan.scanners.Watchlist
 import com.seansoper.batil.brokers.etrade.EtradeClient
 import io.ktor.application.call
 import io.ktor.application.install
@@ -20,7 +20,8 @@ import io.ktor.routing.post
 import io.ktor.routing.put
 import io.ktor.routing.routing
 import io.ktor.serialization.json
-import io.ktor.server.engine.*
+import io.ktor.server.engine.ApplicationEngine
+import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
