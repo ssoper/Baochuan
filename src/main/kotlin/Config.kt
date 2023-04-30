@@ -17,7 +17,8 @@ data class EtradeConfig(
     val key: String,
     val secret: String,
     val username: String,
-    val password: String
+    val password: String,
+    val production: Boolean = false
 )
 
 data class DatabaseConfig(

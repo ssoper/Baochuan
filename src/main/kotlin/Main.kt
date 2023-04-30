@@ -10,6 +10,17 @@ import net.jacobpeterson.alpaca.AlpacaAPI
 import net.jacobpeterson.alpaca.model.properties.DataAPIType
 import net.jacobpeterson.alpaca.model.properties.EndpointAPIType
 import java.time.LocalDateTime
+import kotlin.math.pow
+import kotlin.math.sqrt
+
+fun standardDeviation(data: FloatArray): Double {
+    val mean = data.average()
+    return data
+        .fold(0.0) { accumulator, next -> accumulator + (next - mean).pow(2.0) }
+        .let {
+            sqrt(it / data.size) // data.size-1 for the other type of standard dev
+        }
+}
 
 fun main(args: Array<String>) {
     val config = Config.parse()
@@ -18,7 +29,12 @@ fun main(args: Array<String>) {
     }
 
     val etradeClient = with(config.etrade) {
-        EtradeClient(key, secret, username, password, EtradeClient.Endpoint.LIVE)
+        val endpoint = when (production) {
+            true -> EtradeClient.Endpoint.LIVE
+            false -> EtradeClient.Endpoint.SANDBOX
+        }
+
+        EtradeClient(key, secret, username, password, endpoint)
     }
 
     val dataSource = HikariDataSource()
