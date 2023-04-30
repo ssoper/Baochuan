@@ -37,7 +37,7 @@ dependencies {
 
     // APIs
     implementation("net.jacobpeterson:alpaca-java:8.3.2")
-    implementation("com.seansoper:batil:1.0.4")
+    implementation("com.seansoper:batil:1.0.7")
 
     // Database
     implementation("org.ktorm:ktorm-core:3.4.1")
@@ -68,6 +68,9 @@ tasks.register("createTables") {
 
     doLast {
         val dir = "${projectDir}/data"
+        exec {
+            commandLine("sh", "-c", "mysql -u$dbUsername -p$dbPassword $dbName < $dir/create_options.sql")
+        }
         exec {
             commandLine("sh", "-c", "mysql -u$dbUsername -p$dbPassword $dbName < $dir/create_tickers.sql")
         }

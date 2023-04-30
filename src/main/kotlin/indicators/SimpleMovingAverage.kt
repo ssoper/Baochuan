@@ -18,6 +18,22 @@ enum class Period {
     WEEK
 }
 
+/**
+ * Calculate the simple moving average (SMA) for a given ticker over a defined period
+ *
+ * This example will calculate the SMA over 150 minutes (15*10), 40 hours (4*10)
+ * and 4 days for AAPL
+ *
+ *  val config = Config.parse()
+ *  val alpacaClient = with(config.alpaca) {
+ *    AlpacaAPI(key, secret, EndpointAPIType.LIVE, DataAPIType.IEX)
+ *  }
+ *
+ *  val sma150 = SimpleMovingAverage(alpacaClient).get("AAPL", Period.MINUTE_15, 10)
+ *  val sma40 = SimpleMovingAverage(alpacaClient).get("AAPL", Period.HOUR_4, 10)
+ *
+ *  println("SMA 150 minute: $sma150 - 40 hours: $sma40")
+ */
 class SimpleMovingAverage(private val client: AlpacaAPI) {
 
     fun get(ticker: String, period: Period, amount: Int): Float {

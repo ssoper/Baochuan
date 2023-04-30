@@ -1,4 +1,4 @@
-package com.seansoper.baochuan.watchlist
+package com.seansoper.baochuan.scanners
 
 import com.seansoper.batil.brokers.etrade.EtradeClient
 import kotlinx.serialization.Serializable
