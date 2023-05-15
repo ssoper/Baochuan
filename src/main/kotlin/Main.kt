@@ -45,16 +45,23 @@ fun main(args: Array<String>) {
     val scanner = OptionScanner(etradeClient, dataSource)
     // Uncomment the following to run the blocking 1s scanner
 //    runBlocking {
-//        scanner.scan()
+//        try {
+//            scanner.scan()
+//        } catch (error: Exception) {
+//            // This only works on a mac
+//            ProcessBuilder("/usr/bin/osascript", "-e", "display notification \"${error.message}\" with title \"Baochuan error\"")
+//                .redirectOutput(ProcessBuilder.Redirect.INHERIT)
+//            .start()
+//        }
 //    }
 
     // Uncomment the following to generate a report given a date (or today if no date provided)
 //    runBlocking {
 //        val date = LocalDateTime.now().minusDays(3)
-//        println("Generating report for $date")
+//        println("Generating report")
 //        async {
 //            scanner.generateReport("/Users/ssoper/workspace/Baochuan/options.csv")
-//            println("Finished generating report for $date")
+//            println("Finished generating report")
 //        }
 //    }
 
