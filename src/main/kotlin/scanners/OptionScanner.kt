@@ -63,19 +63,25 @@ class OptionScanner(client: EtradeClient, dataSource: DataSource) {
         }
     }
 
-    fun generateReport(pathToFile: String, date: LocalDateTime? = null) {
+    fun generateReport(pathToFile: String, frequency: FrequencyType = FrequencyType.MINUTE, date: LocalDateTime? = null) {
         File(pathToFile).writeText("$columnHeaders\n")
-        OptionList(dataSource).getOptionsFor(date)?.forEach {
-            File(pathToFile).appendText("${parseOptionResult(it)}\n")
+
+        val options = when (frequency) {
+            FrequencyType.MINUTE -> OptionList(dataSource).getOptionsByMinute(date)
+            FrequencyType.SECOND -> OptionList(dataSource).getOptionsBySecond(date)
+        }
+
+        options?.forEach {
+            File(pathToFile).appendText("${parseOptionResult(it, frequency)}\n")
         }
     }
 
-    private fun parseOptionResult(option: OptionResult): String {
+    private fun parseOptionResult(option: OptionResult, frequency: FrequencyType): String {
         val vega = String.format("%.9f", option.vega)
         val theta = String.format("%.9f", option.theta)
         val delta = String.format("%.9f", option.delta)
         val gamma = String.format("%.9f", option.gamma)
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+        val formatter = DateTimeFormatter.ofPattern(frequency.format())
         val timestamp = option.timestamp.format(formatter)
 
         return "$timestamp,${option.symbol},${option.display},${option.type},${option.strikePrice},${option.high},${option.low},${option.lastPrice},${option.netChange},${option.bid},${option.ask},${option.bidSize},${option.askSize},${option.inTheMoney},${option.volume},${option.openInterest},${option.underlyingPrice},$vega,$theta,$delta,$gamma,${option.iv}"

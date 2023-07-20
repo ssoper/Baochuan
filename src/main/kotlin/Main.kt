@@ -1,6 +1,7 @@
 package com.seansoper.baochuan
 
 import com.seansoper.baochuan.api.Server
+import com.seansoper.baochuan.scanners.FrequencyType
 import com.seansoper.baochuan.scanners.OptionScanner
 import com.seansoper.batil.brokers.etrade.EtradeClient
 import com.zaxxer.hikari.HikariDataSource
@@ -56,14 +57,14 @@ fun main(args: Array<String>) {
 //    }
 
     // Uncomment the following to generate a report given a date (or today if no date provided)
-//    runBlocking {
-//        val date = LocalDateTime.now().minusDays(3)
-//        println("Generating report")
-//        async {
-//            scanner.generateReport("/Users/ssoper/workspace/Baochuan/options.csv")
-//            println("Finished generating report")
-//        }
-//    }
+    runBlocking {
+        val date = LocalDateTime.now().minusDays(3)
+        println("Generating report")
+        async {
+            scanner.generateReport("/Users/ssoper/workspace/Baochuan/options.csv")
+            println("Finished generating report")
+        }
+    }
 
     val server = Server(etradeClient, dataSource, config.server.port)
     // Uncomment the following to run an API service

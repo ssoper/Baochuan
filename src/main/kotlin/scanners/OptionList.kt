@@ -9,6 +9,7 @@ import org.ktorm.entity.Entity
 import org.ktorm.entity.filter
 import org.ktorm.entity.groupBy
 import org.ktorm.entity.sequenceOf
+import org.ktorm.entity.map
 import org.ktorm.schema.Table
 import org.ktorm.schema.boolean
 import org.ktorm.schema.datetime
@@ -68,7 +69,7 @@ class OptionList(dataSource: DataSource) {
         }
     }
 
-    fun getOptionsFor(dateTime: LocalDateTime? = null): List<OptionResult>? {
+    fun getOptionsByMinute(dateTime: LocalDateTime? = null): List<OptionResult>? {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")
         val today = LocalDate.now(ZoneId.of("America/New_York"))
         val todayMidnight = LocalDateTime.of(dateTime?.toLocalDate() ?: today, LocalTime.MIDNIGHT)
@@ -93,6 +94,7 @@ class OptionList(dataSource: DataSource) {
                         underlyingPrice = it.underlyingPrice,
                         high = high,
                         low = low,
+                        frequency = FrequencyType.MINUTE,
                         display = it.display,
                         osiKey = it.osiKey,
                         bid = it.bid,
@@ -114,6 +116,59 @@ class OptionList(dataSource: DataSource) {
                 }
             }
     }
+
+    fun getOptionsBySecond(dateTime: LocalDateTime? = null): List<OptionResult>? {
+        val today = LocalDate.now(ZoneId.of("America/New_York"))
+        val todayMidnight = LocalDateTime.of(dateTime?.toLocalDate() ?: today, LocalTime.MIDNIGHT)
+        val tomorrow = LocalDate.now(ZoneId.of("America/New_York")).plusDays(1)
+        val tomorrowMidnight = LocalDateTime.of(dateTime?.toLocalDate()?.plusDays(1) ?: tomorrow, LocalTime.MIDNIGHT)
+
+        return Database.connect(dataSource)
+            .sequenceOf(Options)
+            .filter { it.timestamp.greater(todayMidnight) }
+            .filter { it.timestamp.less(tomorrowMidnight) }
+            .map {
+                    OptionResult(
+                        timestamp = it.timestamp,
+                        symbol = it.symbol,
+                        type = it.type,
+                        strikePrice = it.strikePrice,
+                        underlyingPrice = it.underlyingPrice,
+                        high = null,
+                        low = null,
+                        frequency = FrequencyType.SECOND,
+                        display = it.display,
+                        osiKey = it.osiKey,
+                        bid = it.bid,
+                        bidSize = it.bidSize,
+                        ask = it.ask,
+                        askSize = it.askSize,
+                        inTheMoney = it.inTheMoney,
+                        volume = it.volume,
+                        openInterest = it.openInterest,
+                        netChange = it.netChange,
+                        lastPrice = it.lastPrice,
+                        rho = it.rho,
+                        vega = it.vega,
+                        theta = it.theta,
+                        delta = it.delta,
+                        gamma = it.gamma,
+                        iv = it.iv
+                    )
+
+            }
+    }
+}
+
+enum class FrequencyType {
+    MINUTE {
+        override fun format() = "yyyy-MM-dd HH:mm"
+    },
+    SECOND {
+        override fun format() = "yyyy-MM-dd HH:mm:ss"
+    };
+
+    abstract fun format(): String
 }
 
 data class OptionResult(
@@ -122,8 +177,9 @@ data class OptionResult(
     val type: String,
     val strikePrice: Float,
     val underlyingPrice: Float,
-    val high: Float,
-    val low: Float,
+    val high: Float?,
+    val low: Float?,
+    val frequency: FrequencyType,
     val display: String,
     val osiKey: String,
     val bid: Float,
